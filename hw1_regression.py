@@ -1,4 +1,4 @@
-
+Ist das angekommen?
 #from sklearn.datasets import make_blobs
 from os.path import join
 import numpy as np 
@@ -46,6 +46,8 @@ A = lamb*np.eye(d)+np.dot(np.transpose(X_train),X_train)
 b = np.dot(np.transpose(X_train),y_train)
 wRR = solve(A,b)
 print(wRR)
+np.savetxt('wRR','.csv']), cent, delimiter=',')
+
 
 plt.plot(X_train, y_train+y_train_mean, marker='s')
 plt.plot(X_train, np.dot(X_train,wRR)+y_train_mean)
