@@ -1,4 +1,5 @@
 Ist das angekommen?
+Ja, allerdings. ES scheint langsam zu funktionieren!
 #from sklearn.datasets import make_blobs
 from os.path import join
 import numpy as np 
