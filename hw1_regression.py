@@ -1,4 +1,4 @@
-Wieder alles weg
+
 #from sklearn.datasets import make_blobs
 from os.path import join
 import numpy as np 
@@ -23,6 +23,10 @@ X_train = X_train[:, np.newaxis]
 y_train = np.array([236.4, 234.4, 252.8, 298.6, 314.2, 342.2, 360.8, 368, 391.2, 390.8])
 y_train = y_train[:, np.newaxis]
 
+np.savetxt('X_train.csv', X_train, delimiter=',')
+np.savetxt('y_train.csv', X_train, delimiter=',')
+np.savetext('X_test.csv', X_test, delimiter = ',')
+
 print(X_train)
 
 
@@ -46,7 +50,7 @@ A = lamb*np.eye(d)+np.dot(np.transpose(X_train),X_train)
 b = np.dot(np.transpose(X_train),y_train)
 wRR = solve(A,b)
 print(wRR)
-np.savetxt('wRR','.csv']), cent, delimiter=',')
+np.savetxt(['wRR','.csv'], wRR, delimiter=',')
 
 
 plt.plot(X_train, y_train+y_train_mean, marker='s')
