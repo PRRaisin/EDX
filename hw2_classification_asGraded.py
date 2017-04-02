@@ -3,9 +3,11 @@
 from os.path import join
 import numpy as np 
 import sys
+
 from numpy.random import choice, randint
 from numpy.linalg import solve, inv, norm
-from sklearn.cross_validation import train_test_split
+
+from scipy.spatial.distance import cdist
 
 # This code implements the K-means clustering.
 from numpy import genfromtxt
@@ -13,16 +15,9 @@ from numpy import genfromtxt
 
 
 # read out command line arguments
-
-
-X_train = genfromtxt(sys.argv[1], delimiter=';') 
+X_train = genfromtxt(sys.argv[1], delimiter=',') 
 y_train = genfromtxt(sys.argv[2], delimiter=',')
 X_test = genfromtxt(sys.argv[3], delimiter=',')
-
-
-# split the data into training and testing
-X_train, X_test, y_train, y_test = train_test_split(X_train,y_train, test_size=0.3, random_state=0)
-
 
 
 n = y_train.shape[0]
@@ -70,9 +65,8 @@ fsum = np.sum(f,1)
 fsum = fsum[:, np.newaxis]
 f = f/fsum
 
-print(np.sum(f,1))
-
 np.savetxt('probs_test.csv', f, delimiter=',')
+
 
 
 
