@@ -9,6 +9,10 @@ from numpy.linalg import solve, inv
 from scipy.spatial.distance import cdist
 import matplotlib.pyplot as plt
 
+# import the ridge regression form scikit learn
+
+from sklearn.linear_model import Ridge
+
 # This code implements the K-means clustering.
 from numpy import genfromtxt
 
@@ -22,6 +26,13 @@ X_test = genfromtxt(sys.argv[5], delimiter=',')
 
 
 #X_train = X_train[:, np.newaxis]
+
+
+# do the sklearn ridge regression
+n_samples, n_features = 10, 2
+np.random.seed(0)
+clf = Ridge(alpha=1/lamb)
+clf.fit(X_train, y_train) 
 
 
 #lamba sigma2 X_train.csv y_train.csv X_test.csv =  sys.argv[2], sys.argv[3], sys.argv[4], sys.argv[5],delimiter=',')
