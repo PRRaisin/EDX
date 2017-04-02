@@ -14,9 +14,8 @@ from numpy import genfromtxt
 
 
 # read out command line arguments
-lamb = float(sys.argv[1]) 
-sigma2 = float(sys.argv[2])
-X_train = genfromtxt(sys.argv[3], delimiter=',') 
-y_train = genfromtxt(sys.argv[4], delimiter=',')
-X_test = genfromtxt(sys.argv[5], delimiter=',')
+
+X_train = genfromtxt(sys.argv[1], delimiter=',') 
+y_train = genfromtxt(sys.argv[2], delimiter=',')
+X_test = genfromtxt(sys.argv[3], delimiter=',')
 
