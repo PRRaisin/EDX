@@ -4,7 +4,7 @@ from os.path import join
 import numpy as np 
 import sys
 from numpy.random import choice, randint
-from numpy.linalg import solve, inv, norm
+from numpy.linalg import solve, inv, norm, det
 from sklearn.cross_validation import train_test_split
 
 # This code implements the K-means clustering.
@@ -56,7 +56,8 @@ f = np.zeros((n2,k))
 for i in range(k):
 
 	SigmaDiag = np.diag(np.diag(Sigma[i,:,:]))
-	absSigma  = norm(Sigma[i,:,:])
+	#absSigma  = norm(Sigma[i,:,:])
+	absSigma  = det(Sigma[i,:,:])
 	SigmaInv = inv(Sigma[i,:,:])
 
 	for m in range(0,n2):

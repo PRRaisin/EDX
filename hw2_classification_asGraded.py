@@ -5,7 +5,7 @@ import numpy as np
 import sys
 
 from numpy.random import choice, randint
-from numpy.linalg import solve, inv, norm
+from numpy.linalg import solve, inv, norm, det
 
 from scipy.spatial.distance import cdist
 
@@ -15,7 +15,7 @@ from numpy import genfromtxt
 
 
 # read out command line arguments
-X_train = genfromtxt(sys.argv[1], delimiter=',') 
+X_train = genfromtxt(sys.argv[1], delimiter=';') 
 y_train = genfromtxt(sys.argv[2], delimiter=',')
 X_test = genfromtxt(sys.argv[3], delimiter=',')
 
@@ -51,7 +51,7 @@ f = np.zeros((n2,k))
 for i in range(k):
 
 	SigmaDiag = np.diag(np.diag(Sigma[i,:,:]))
-	absSigma  = norm(Sigma[i,:,:])
+	absSigma  = det(Sigma[i,:,:])
 	SigmaInv = inv(Sigma[i,:,:])
 
 	for m in range(0,n2):
