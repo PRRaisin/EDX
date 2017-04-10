@@ -4,103 +4,102 @@ from os.path import join
 import numpy as np 
 import sys
 import csv
-from numpy.random import choice, randint
+from numpy.random import choice, randint, normal
+from numpy.linalg import solve, norm
 from scipy.spatial.distance import cdist
-import matplotlib.pyplot as plt
 from scipy.stats import multivariate_normal
-
-
-# This code implements the K-means clustering.
 from numpy import genfromtxt
-X = genfromtxt(sys.argv[1], delimiter=',')
 
-k = 5 # this is a given
-maxIt = 10
-# generate the data
-#X,y = make_blobs(n_samples=150, n_features=2, centers=k, cluster_std=0.5, shuffle=True, random_state=0)
-[n,d] = X.shape
-#np.savetxt('X.csv',X, delimiter=',' )
+# This code implements the PMF for assignment 4
 
 
-### Part I: k-means clustering ###
+# read the ratings data from the command line
+ratings = genfromtxt(sys.argv[1], delimiter=',')
 
-# chose the first k centroids randomly 
-cent = X[randint(n, size=k), :]
+# to be sure, first transform them to real integers
 
-for i in range(maxIt):
+ratingIndices = ratings[:,[0,1]].astype(int)
 
-	# calculate the distances to each cluster and find the min indices
-	dist = cdist(X,cent,'euclidean')
+N1 = max(ratingIndices[:,0])
+N2 = max(ratingIndices[:,1])
+
+# build the matrix M
+M = np.zeros((N1,N2))
+
+for i in range(ratings.shape[0]):
+	M[ratingIndices[i,0]-1, ratingIndices[i,1]-1] = ratings[i,2]
+
+
+# set parameters to d=5, sigma^2=1/10 and lambda=2
+d = 5
+sigma2 = 0.1
+lamb = 2.0 
+
+maxIt = 50
+eps = 10**-3
+
+
+# generate the first v vector matrix from a normal distribution, v ~ N(0, lambda^-1), where dim(v) = d x N2
+v = normal(0, 1/lamb, (N2,d))
+u = np.zeros((N1,d))
+L = np.zeros(maxIt)
+### iterate ###
+for it in range(maxIt):
+
+	# update the u matrix (user location)
+	for i in range(N1):
+
+		A = lamb*sigma2*np.eye(d)
+		b = np.zeros((1,d))
+		# iterate over each rating of user i
+		for j in range(N2):
+
+			if norm(M[i,j]) > eps :
+
+				A = A + np.outer(v[j,:], v[j,:])
+				b = b + M[i,j]*v[j,:]
+
+		u[i,:] = np.transpose(solve(A,np.transpose(b)))
+
+
+	# update the v matrix (object location)
+	# iterate over each object location vector
+	for i in range(N2):
+
+		A = lamb*sigma2*np.eye(d)
+		b = np.zeros((1,d))
+
+		# iterate over each user for a given object i
+		for j in range(N1):
+
+			if norm(M[j,i]) > eps :
+				A = A + np.outer(u[j,:], u[j,:])
+				b = b + M[j,i]*u[j,:]
+
+		v[i,:] = np.transpose(solve(A,np.transpose(b)))
+
+	# calculate the objective function
 	
-	# find the lowest values and set them to the respective clusters
-	clustInd = np.argmin(dist, axis=1)
-	
-	# calculate the new cluster centroids
-	for j in range(k):
-		cent[j,:] = np.mean(X[clustInd == j,:], axis=0)
+	# iterate over rating
+	for i in range(ratings.shape[0]):
+		L[it] = L[it] - 1./(2*sigma2) * norm(ratings[i,2]-np.dot(u[ratingIndices[i,0]-1,:], v[ratingIndices[i,1]-1,:]))**2 
 
-	# write the results to the files
-	np.savetxt(''.join(['centroids-',str(i+1),'.csv']), cent, delimiter=',')
+	for i in range(N1):
+		L[it] = L[it] - lamb/2*norm(u[i,:])**2
 
-
-'''
-plt.scatter(X[:,0],X[:,1])
-plt.scatter(cent[:,0], cent[:,1], marker='s', color='g')
-plt.show()
-'''
+	for j in range(N2):
+		L[it] = L[it] - lamb/2*norm(v[j,:])**2 
 
 
+	save_its = np.array([10,25,50])-1
+
+	if it in save_its:
+		# write the results to the files
+		np.savetxt(''.join(['U-',str(it+1),'.csv']), u, delimiter=',')
+		np.savetxt(''.join(['V-',str(it+1),'.csv']), v, delimiter=',')
 
 
-### Part II: The EM Algorithm ###
-# Implementation is according to the description on page 194 of the script, on Gaussian Mixture models
-
-
-prior = (1./k)*np.ones((k,1))
-Sigma = np.zeros((k,d,d))
-for i in range(k):
-	Sigma[i,:,:] = np.eye(d)
-
-mu = X[randint(n, size=k), :]
-
-#print(mu.shape)
-
-for i in range(maxIt):
-
-
-	# the E-step
-	phi = np.zeros((n,k))
-
-	# iterate over each sample x in X
-	for j in range(n):
-
-		multVarSum = 0
-		# iterate over each cluster
-		for m in range(k):
-			pdf = multivariate_normal(mean = mu[m,:], cov = Sigma[m,:,:])
-			multVar = pdf.pdf(X[j,:])
-			phi[j,m] = prior[m]*multVar
-			multVarSum =multVarSum + multVar
-
-		phi[j,:] = phi[j,:]/multVarSum
-
-	# the M-step
-	print(phi)
-	n_k = np.sum(phi,0)
-	print(n_k)
-	# update the prior
-	prior = n_k/n	
-	
-	for m in range(k):
-
-		for i in range(n):
-			mu[m,:] =  mu[m,:] + phi[i,m]*X[i,:] 
-
-		#print(n_k[m])
-		mu[m,:] = mu[m,:]/n_k[m]
-
-		for i in range(n):
-			Sigma[m,:,:] = Sigma[m,:,:] + phi[i,m] * np.dot(np.transpose(X[i,:] - mu[m,:]), (X[i,:] - mu[m,:]))
+np.savetxt('objective.csv', L , delimiter=',')
 
 
 
